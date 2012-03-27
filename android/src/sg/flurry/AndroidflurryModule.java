@@ -11,9 +11,10 @@ import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.KrollModule;
 import org.appcelerator.kroll.annotations.Kroll;
 
-import org.appcelerator.titanium.TiContext;
-import org.appcelerator.titanium.util.Log;
-//import org.appcelerator.titanium.util.TiConfig;
+//import org.appcelerator.titanium.TiContext;
+import org.appcelerator.kroll.common.Log;
+import org.appcelerator.titanium.TiApplication;
+
 
 import com.flurry.android.*;
 
@@ -26,26 +27,26 @@ public class AndroidflurryModule extends KrollModule
 	private static final String LCAT = "AndroidflurryModule";
 	//private static final boolean DBG = TiConfig.LOGD;
     
-	@Kroll.constant public static final byte MALE = Constants.MALE;
-  	@Kroll.constant public static final byte FEMALE = Constants.FEMALE;
+	@Kroll.constant public static final int MALE = 0;
+  	@Kroll.constant public static final int FEMALE = 1;
     
-	public AndroidflurryModule(TiContext tiContext) {
-		super(tiContext);
+	public AndroidflurryModule() {
+		super();
 	}
 
 	// ********* Sessions *************
     // apiKey is the unique key when for the application on flurry
     @Kroll.method
     public void onStartSession(String apiKey){
-        FlurryAgent.onStartSession(this.context.getAndroidContext() , apiKey);
-		Log.d(LCAT, "start context: " + this.context.getAndroidContext());
+        FlurryAgent.onStartSession(TiApplication.getInstance().getApplicationContext(), apiKey);
+		Log.d(LCAT, "start context: " + TiApplication.getInstance().getApplicationContext());
     }
     
     //Must be called if you want events to be sent
   	@Kroll.method
     public void onEndSession(){      
-        FlurryAgent.onEndSession(this.context.getAndroidContext());
-   		Log.d(LCAT, "end context: " + this.context.getAndroidContext());
+        FlurryAgent.onEndSession(TiApplication.getInstance().getApplicationContext());
+   		Log.d(LCAT, "end context: " + TiApplication.getInstance().getApplicationContext());
     }
 	// ********* Sessions *************
     
@@ -112,9 +113,14 @@ public class AndroidflurryModule extends KrollModule
     
     //Use the constants AndroidflurryModule.MALE or AndroidflurryModule.FEMALE in your javascript files
     @Kroll.method
-    public void setGender(byte gender){
-        FlurryAgent.setGender(gender);
-        Log.d(LCAT, "logged gender: " + gender);
+    public void setGender(int gender){
+    	byte genderMap = Constants.FEMALE;
+    	if(gender==MALE){
+    		genderMap=Constants.MALE;
+    	}
+    		
+        FlurryAgent.setGender(genderMap);
+        Log.d(LCAT, "logged gender: " + genderMap);
     }
     // ********* Demographics *************
 }
