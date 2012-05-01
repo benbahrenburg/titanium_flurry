@@ -49,6 +49,7 @@
 -(void)startSession:(id)args
 {
 	ENSURE_SINGLE_ARG(args,NSString);
+    ENSURE_UI_THREAD(startSession,args);
 	[FlurryAnalytics startSession:args];
 }
 
@@ -75,6 +76,7 @@ void uncaughtExceptionHandler(NSException *exception) {
 {
 	ENSURE_SINGLE_ARG(value,NSObject);
 	BOOL yn = [TiUtils boolValue:value];
+    ENSURE_UI_THREAD(reportOnClose,value);
 	[FlurryAnalytics setSessionReportsOnCloseEnabled:yn];
 }
 
@@ -83,6 +85,7 @@ void uncaughtExceptionHandler(NSException *exception) {
 {
 	ENSURE_SINGLE_ARG(value,NSObject);
 	BOOL yn = [TiUtils boolValue:value];
+    ENSURE_UI_THREAD(reportOnPause,value);
 	[FlurryAnalytics setSessionReportsOnPauseEnabled:yn];
 }
 
@@ -91,6 +94,7 @@ void uncaughtExceptionHandler(NSException *exception) {
 {
 	ENSURE_SINGLE_ARG(value,NSObject);
 	BOOL yn = [TiUtils boolValue:value];
+    ENSURE_UI_THREAD(secureTransport,value);
 	[FlurryAnalytics setSecureTransportEnabled:yn];
 }
 
@@ -112,6 +116,7 @@ void uncaughtExceptionHandler(NSException *exception) {
 // args[1] = hash of parameters
 -(void)logEvent:(id)args
 {
+    ENSURE_UI_THREAD(logEvent,args);
 	NSString *event = [args objectAtIndex:0];
 	NSDictionary *props = nil;
 	if ([args count] > 1)
@@ -135,6 +140,7 @@ void uncaughtExceptionHandler(NSException *exception) {
 // args[1] = hash of parameters
 -(void)logTimedEvent:(id)args
 {
+    ENSURE_UI_THREAD(logTimedEvent,args);
 	NSString *event = [args objectAtIndex:0];
 	NSDictionary *props = nil;
 	if ([args count] > 1)
@@ -157,6 +163,7 @@ void uncaughtExceptionHandler(NSException *exception) {
 // args[1] = hash of parameters
 -(void)endTimedEvent:(id)args
 {
+    ENSURE_UI_THREAD(endTimedEvent,args);
 	NSString *event = [args objectAtIndex:0];
 	NSDictionary *props = nil;
 	if ([args count] > 1)
@@ -172,6 +179,7 @@ void uncaughtExceptionHandler(NSException *exception) {
 
 -(void)logPageView:(id)args
 {
+    ENSURE_UI_THREAD(logPageView,args);
 	[FlurryAnalytics logPageView];
     
    	NSLog(@"[INFO] SgFlurry logged %@", @"Page View");
@@ -186,6 +194,7 @@ void uncaughtExceptionHandler(NSException *exception) {
 		NSString *name = [TiUtils stringValue:[args objectAtIndex:0] ];
         NSString *message = [TiUtils stringValue:[args objectAtIndex:1] ];
         NSException *excep = [NSException exceptionWithName:@"Titanium thrown error" reason:@"" userInfo:nil];
+        ENSURE_UI_THREAD(logError,args);
         [FlurryAnalytics logError:name message:message exception:excep];
         
        	NSLog(@"[INFO] SgFlurry logged %@: %@ | %@", @"Error", name, message);
@@ -199,7 +208,8 @@ void uncaughtExceptionHandler(NSException *exception) {
 -(void)setUserID:(id)value
 {
 	ENSURE_SINGLE_ARG(value,NSString);
-	[FlurryAnalytics setUserID:value];
+	ENSURE_UI_THREAD(setUserID,value);
+    [FlurryAnalytics setUserID:value];
     
    	NSLog(@"[INFO] SgFlurry logged %@: %@", @"userID", value);
 }
@@ -207,8 +217,11 @@ void uncaughtExceptionHandler(NSException *exception) {
 // args[0] = int
 -(void)setAge:(id)value
 {
+    ENSURE_SINGLE_ARG(value,NSNumber);    
 	NSInteger f = [TiUtils intValue:value];
-	[FlurryAnalytics setAge:f];
+	ENSURE_UI_THREAD(setAge,value);
+    
+    [FlurryAnalytics setAge:f];
     
    	NSLog(@"[INFO] SgFlurry logged %@: %d", @"age", f);
 }
@@ -217,6 +230,7 @@ void uncaughtExceptionHandler(NSException *exception) {
 -(void)setGender:(id)value
 {
 	ENSURE_SINGLE_ARG(value,NSString);
+    ENSURE_UI_THREAD(setGender,value);
 	[FlurryAnalytics setGender:value];
     
    	NSLog(@"[INFO] SgFlurry logged %@: %@", @"gender", value);
@@ -234,6 +248,7 @@ void uncaughtExceptionHandler(NSException *exception) {
    		CGFloat lon = [TiUtils floatValue:[args objectAtIndex:1] ];
    		CGFloat horz = [TiUtils floatValue:[args objectAtIndex:2] ]; //in meters
    		CGFloat vert = [TiUtils floatValue:[args objectAtIndex:3] ]; //in meters
+         ENSURE_UI_THREAD(setLatitude,args);
         [FlurryAnalytics setLatitude:lat longitude:lon horizontalAccuracy:horz verticalAccuracy:vert];
         
         NSLog(@"[INFO] SgFlurry logged %@: %f | %f | %f | %f", @"lat", lat, lon, horz, vert);
